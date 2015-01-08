@@ -22,42 +22,47 @@
         <![endif]-->
 <?php
 
-$filename = 'address_book.csv';
+class AddressDataStore
+{
+	public $filename = '';
 
-// Function for reading CSV
-function openCSV($filename) {
+	// function for reading CSV
+	function openCSV() {
 
-	$handle = fopen($filename, 'r');
+		$handle = fopen($this->filename, 'r');
 
-	$address_book = [];
+		$address_book = [];
 
-	while(!feof($handle)) {
-		$row = fgetcsv($handle);
+		while(!feof($handle)) {
+			$row = fgetcsv($handle);
 
-		if (!empty($row)) {
-			$address_book[] = $row;
+			if (!empty($row)) {
+				$address_book[] = $row;
+			}
 		}
-	}
-	fclose($handle);
-	return $address_book;
-}
-
-// php function to write to CSV file
-function saveAddressBook($filename, $address_book) {
-	$handle = fopen($filename, 'w');
-
-	foreach ($address_book as $row) {
-		fputcsv($handle, $row);	
+		fclose($handle);
+		return $address_book;
 	}
 
-	fclose($handle);
+	// php function to Save to CSV file
+	function saveAddressBook($address_book) {
+		$handle = fopen($this->filename, 'w');
+
+		foreach ($address_book as $row) {
+			fputcsv($handle, $row);	
+		}
+
+		fclose($handle);
+	}
+
 }
 
+$address_obj = new AddressDataStore();
+$address_obj->filename = 'address_book.csv';
+$address_book = $address_obj->openCSV();
 
 
-$address_book = openCSV($filename);
-
-// function to write to csv
+// function to Save new stuff to csv
 if (!empty($_POST)) {
 
 	$error = false;
@@ -75,7 +80,7 @@ if (!empty($_POST)) {
 		$message = 'Please fill out all the fields';
 	} else {
 		array_push($address_book, $_POST);
-		saveAddressBook($filename, $address_book);
+		$address_obj->saveAddressBook($address_book);	
 	}
 }
 
@@ -86,7 +91,7 @@ if (isset($_GET['remove'])) {
 	unset($address_book[$id]);
 }
 
-saveAddressBook($filename, $address_book);
+$address_obj->saveAddressBook($address_book);
 
 ?>
 
