@@ -26,6 +26,13 @@ class AddressDataStore
 {
 	public $filename = '';
 
+	public $contacts = [];
+
+	// Allows filename to be set on instantiation
+	function __construct($filename = '') {
+		$this->filename = $filename;
+	}
+
 	// function for reading CSV
 	function openCSV() {
 
@@ -45,10 +52,10 @@ class AddressDataStore
 	}
 
 	// php function to Save to CSV file
-	function saveAddressBook($address_book) {
+	function saveAddressBook() {
 		$handle = fopen($this->filename, 'w');
 
-		foreach ($address_book as $row) {
+		foreach ($this->address_book as $row) {
 			fputcsv($handle, $row);	
 		}
 
@@ -57,9 +64,9 @@ class AddressDataStore
 
 }
 
-$address_obj = new AddressDataStore();
-$address_obj->filename = 'address_book.csv';
-$address_book = $address_obj->openCSV();
+$address_obj = new AddressDataStore('address_book.csv');
+// $address_obj->filename = 'address_book.csv';
+$address_obj->address_book = $address_obj->openCSV();
 
 
 // function to Save new stuff to csv
@@ -79,8 +86,8 @@ if (!empty($_POST)) {
 	if ($error) {
 		$message = 'Please fill out all the fields';
 	} else {
-		array_push($address_book, $_POST);
-		$address_obj->saveAddressBook($address_book);	
+		array_push($address_obj->address_book, $_POST);
+		$address_obj->saveAddressBook();	
 	}
 }
 
@@ -88,10 +95,10 @@ if (!empty($_POST)) {
 
 if (isset($_GET['remove'])) {
 	$id = $_GET['remove'];
-	unset($address_book[$id]);
+	unset($address_obj->address_book[$id]);
 }
 
-$address_obj->saveAddressBook($address_book);
+$address_obj->saveAddressBook();
 
 ?>
 
@@ -161,7 +168,7 @@ $address_obj->saveAddressBook($address_book);
 					<!-- <th>Remove</th> -->
 				</tr>
 
-				<? foreach ($address_book as $key => $row): ?>
+				<? foreach ($address_obj->address_book as $key => $row): ?>
 					<tr>
 					<?foreach ($row as $value): ?>
 						<td colspan="1"> <?= $value ?></td>
