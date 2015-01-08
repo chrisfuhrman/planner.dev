@@ -26,7 +26,7 @@ class AddressDataStore
 {
 	public $filename = '';
 
-	public $contacts = [];
+	public $address_book = [];
 
 	// Allows filename to be set on instantiation
 	function __construct($filename = '') {
@@ -39,6 +39,7 @@ class AddressDataStore
 		$handle = fopen($this->filename, 'r');
 
 		$address_book = [];
+
 
 		while(!feof($handle)) {
 			$row = fgetcsv($handle);
@@ -54,7 +55,6 @@ class AddressDataStore
 	// php function to Save to CSV file
 	function saveAddressBook() {
 		$handle = fopen($this->filename, 'w');
-
 		foreach ($this->address_book as $row) {
 			fputcsv($handle, $row);	
 		}
@@ -64,9 +64,36 @@ class AddressDataStore
 
 }
 
-$address_obj = new AddressDataStore('address_book.csv');
-// $address_obj->filename = 'address_book.csv';
-$address_obj->address_book = $address_obj->openCSV();
+	$address_obj = new AddressDataStore('address_book.csv');
+	$address_obj->address_book = $address_obj->openCSV();
+
+
+
+
+// Verify there were uploaded files and no errors
+if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
+    // Set the destination directory for uploads
+    $uploadDir = '/vagrant/sites/planner.dev/public/uploads/';
+
+    // Grab the filename from the uploaded file by using basename
+    $uploadedFile = basename($_FILES['file1']['name']);
+
+    // Create the saved filename using the file's original name and our upload directory
+    $savedFilename = $uploadDir . $uploadedFile;
+
+
+	$address_obj_uploaded = new AddressDataStore($savedFilename);
+
+    $address_obj_uploaded->openCSV();
+
+    // Move the file from the temp location to our uploads directory
+    move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
+
+    
+ 
+	$address_obj->address_book = array_merge($address_obj->address_book, $address_obj_uploaded->openCSV());
+	$address_obj->saveAddressBook();
+}
 
 
 // function to Save new stuff to csv
@@ -192,6 +219,7 @@ $address_obj->saveAddressBook();
 
 			<!-- form to enter a new contact -->
 			<div class="container">
+				<div class="row">
 				<h2 class="form_title">Add a contact to address book</h2>
 				<form method="POST" action="/address_book.php">
 
@@ -239,11 +267,29 @@ $address_obj->saveAddressBook();
 					</div>
 
 	                <div class="form-group btn-width">
-					<button type="submit">Add</button>
+						<button type="submit">Add</button>
 					</div>
-				</form>
+
+					</form>
+				</div>
 			</div>
-		</div>
+
+		<!-- Upload File form -->
+			<div class="col-md-3">
+				<h2>Upload File</h2>
+
+			    <form method="POST" enctype="multipart/form-data" action="/address_book.php">
+			        <p>
+			            <label for="file1">File to upload: </label>
+			            <input type="file" id="file1" name="file1">
+			        </p>
+			        <p>
+			            <input type="submit" value="Upload">
+			        </p>
+			    </form>
+			</div>
+
+	</div>
 
 
 <!-- Sub-Footer -->
