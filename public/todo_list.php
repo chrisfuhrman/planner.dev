@@ -1,53 +1,68 @@
 <?php
 
-//function to open a file, read it, and turn contents into an array
-function readList($filename) {
 
-    $handle = fopen($filename, 'r');
+class TodoListStore {
 
-    if (filesize($filename) > 0) {
-        $contents = fread($handle, filesize($filename));
-        $listArray = explode(PHP_EOL, trim($contents));
-    } else {
-        $listArray = [];
+    public $filename = '';
+
+    public $listArray = '';
+
+    // Allows filename to be set on instantiation
+    function __construct($filename = 'list.txt') {
+        $this->filename = $filename;
     }
-    
-    fclose($handle); 
 
-    return $listArray;
+    //function to open a file, read it, and turn contents into an array
+    function readList() {
+
+        $handle = fopen($this->filename, 'r');
+
+        if (filesize($this->filename) > 0) {
+            $contents = fread($handle, filesize($this->filename));
+            $listArray = explode(PHP_EOL, trim($contents));
+        } else {
+            $listArray = [];
+        }
+        
+        fclose($handle); 
+
+        return $listArray;
+    }
+
+    // Function to save todo list to a file
+    function saveFile($listArray) {
+
+        $handle = fopen($this->filename, 'w');
+
+        foreach ($listArray as $task) {
+            fwrite($handle, $task . PHP_EOL);
+        }
+        
+        fclose($handle);
+    }
 }
 
-// Function to save todo list to a file
-function saveFile($filename, $items) {
+// initialize class
+$todo_list_obj = new TodoListStore;
 
-    $handle = fopen($filename, 'w');
-
-    foreach ($items as $task) {
-        fwrite($handle, $task . PHP_EOL);
-    }
-    
-    fclose($handle);
-}
-
-//calling function to open file, read, and turn list into array
-$filename = 'list.txt';
-$listArray  = readList($filename);
+//calling function to open file, read
+$todo_list_obj->listArray = $todo_list_obj->readList();
 
 // add item to array
 if (isset($_POST['item'])) {
-	$listArray[] = $_POST['item'];
+	$todo_list_obj->listArray[] = htmlspecialchars(strip_tags($_POST['item']));
 }
 
 // Call function to save file
-saveFile($filename, $listArray);
+$todo_list_obj->saveFile($todo_list_obj->listArray);
 
 if (isset($_GET['remove'])) {
 	$id = $_GET['remove'];
-	unset($listArray[$id]);
+	unset($todo_list_obj->listArray[$id]);
 }
 
 // Call function to save file
-saveFile($filename, $listArray);
+$todo_list_obj->saveFile($todo_list_obj->listArray);
 
 
 // Verify there were uploaded files and no errors
@@ -65,23 +80,16 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
     move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
 	$uploadedArray = readList($savedFilename);
-	$listArray = array_merge($uploadedArray, $listArray);
-	saveFile('list.txt', $listArray);
+    $todo_list_obj->listArray = array_merge($uploadedArray, $todo_list_obj->listArray);
+    $todo_list_obj->saveFile($listArray);
 }
 
 
-// Check if we saved a file
-if (isset($savedFilename)) {
-    // If we did, show a link to the uploaded file
-    echo "<p>You can download your file <a href='/uploads/{$filename}'>here</a>.</p>";
-    // add uploaded file to todo list
-    $listArray  = readList($savedFilename);
-	// Call function to save file
-	saveFile($filename, $listArray);
-}
+
 
 
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -125,15 +133,11 @@ if (isset($savedFilename)) {
 	<div class="list">
 		<h2 id="list_title">Your List</h2>
 		<ul>
-<?php
-
-	foreach ($listArray as $key => $item) {
-		echo '<div class="li-list">' . "<li>{$item} | <a href=\"?remove={$key}\">X</a></div>";
-	}	echo ' </li>';
-
-?>
-		</ul>
-	</div>
+		<? foreach ($todo_list_obj->listArray as $key => $item) : ?>
+		<div class="li-list">
+		<li><?= $item; ?>	
+		<a href="?remove=<?= $key; ?>">X</a></div> 
+	<? endforeach; ?></li></ul></div>
 
 
 
