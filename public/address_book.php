@@ -29,7 +29,7 @@ class AddressDataStore
 	public $address_book = [];
 
 	// Allows filename to be set on instantiation
-	function __construct($filename = '') {
+	function __construct($filename = 'address_book.csv') {
 		$this->filename = $filename;
 	}
 
@@ -61,10 +61,9 @@ class AddressDataStore
 
 		fclose($handle);
 	}
-
 }
 
-	$address_obj = new AddressDataStore('address_book.csv');
+	$address_obj = new AddressDataStore();
 	$address_obj->address_book = $address_obj->openCSV();
 
 
@@ -126,6 +125,8 @@ if (isset($_GET['remove'])) {
 }
 
 $address_obj->saveAddressBook();
+
+
 
 ?>
 
@@ -219,7 +220,7 @@ $address_obj->saveAddressBook();
 
 			<!-- form to enter a new contact -->
 			<div class="container">
-				<div class="row">
+				<!-- <div class="row"> -->
 				<h2 class="form_title">Add a contact to address book</h2>
 				<form method="POST" action="/address_book.php">
 
@@ -229,6 +230,23 @@ $address_obj->saveAddressBook();
 					        <label for="name">Name:</label>
 					        <input type="text" class="form-control" name="name" id="name">
 					        </div>
+
+
+								<!-- Upload File form -->
+								<div class="col-md-3">
+									<h2>Upload File</h2>
+
+								    <form method="POST" enctype="multipart/form-data" action="/address_book.php">
+								        <p>
+								            <label for="file1">File to upload: </label>
+								            <input type="file" id="file1" name="file1">
+								        </p>
+								        <p>
+								            <input type="submit" value="Upload">
+								        </p>
+								    </form>
+								</div>
+
 				    	</div>
 					</div>
 
@@ -271,7 +289,7 @@ $address_obj->saveAddressBook();
 					</div>
 
 					</form>
-				</div>
+				<!-- </div> -->
 			</div>
 
 		<!-- Upload File form -->
@@ -327,13 +345,5 @@ $address_obj->saveAddressBook();
 
     </body>
 </html>
-
-
-
-
-
-
-
-
 
 
