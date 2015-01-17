@@ -9,13 +9,9 @@
 	margin: 0;
 	width: 100%
 }
-
-
-
 h3 {
 	text-align: center;
 }
-
 
 /*
   ========================================
@@ -74,27 +70,12 @@ button:hover {
 
 .list h3 {
 	color: #54BF6A;
-	
 }
-
-.list li {
-	/*background-color: red;*/
-}
-
-/*.li-list {
-	display: inline;
-}*/
-
-
 a:link {
 	color: green;
 	text-decoration: none;
 	font-size: .7em;
 
-
 * {
 	font-family: 'Droid Sans', sans-serif;
 }
-
-
-

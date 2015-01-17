@@ -1,45 +1,44 @@
 <?php
 
-
 class TodoListStore {
 
-    public $filename = '';
+	public $filename = '';
 
-    public $listArray = '';
+	public $listArray = '';
 
-    // Allows filename to be set on instantiation
-    function __construct($filename = 'list.txt') {
-        $this->filename = $filename;
-    }
+	// Allows filename to be set on instantiation
+	function __construct($filename = 'list.txt') {
+		$this->filename = $filename;
+	}
 
-    //function to open a file, read it, and turn contents into an array
-    function readList() {
+	//function to open a file, read it, and turn contents into an array
+	function readList() {
 
-        $handle = fopen($this->filename, 'r');
+		$handle = fopen($this->filename, 'r');
 
-        if (filesize($this->filename) > 0) {
-            $contents = fread($handle, filesize($this->filename));
-            $listArray = explode(PHP_EOL, trim($contents));
-        } else {
-            $listArray = [];
-        }
-        
-        fclose($handle); 
+		if (filesize($this->filename) > 0) {
+			$contents = fread($handle, filesize($this->filename));
+			$listArray = explode(PHP_EOL, trim($contents));
+		} else {
+			$listArray = [];
+		}
+		
+		fclose($handle); 
 
-        return $listArray;
-    }
+		return $listArray;
+	}
 
-    // Function to save todo list to a file
-    function saveFile($listArray) {
+	// Function to save todo list to a file
+	function saveFile($listArray) {
 
-        $handle = fopen($this->filename, 'w');
+		$handle = fopen($this->filename, 'w');
 
-        foreach ($listArray as $task) {
-            fwrite($handle, $task . PHP_EOL);
-        }
-        
-        fclose($handle);
-    }
+		foreach ($listArray as $task) {
+			fwrite($handle, $task . PHP_EOL);
+		}
+		
+		fclose($handle);
+	}
 }
 
 // initialize class
@@ -67,25 +66,22 @@ $todo_list_obj->saveFile($todo_list_obj->listArray);
 
 // Verify there were uploaded files and no errors
 if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
-    // Set the destination directory for uploads
-    $uploadDir = '/vagrant/sites/planner.dev/public/uploads/';
+	// Set the destination directory for uploads
+	$uploadDir = '/vagrant/sites/planner.dev/public/uploads/';
 
-    // Grab the filename from the uploaded file by using basename
-    $filename = basename($_FILES['file1']['name']);
+	// Grab the filename from the uploaded file by using basename
+	$filename = basename($_FILES['file1']['name']);
 
-    // Create the saved filename using the file's original name and our upload directory
-    $savedFilename = $uploadDir . $filename;
+	// Create the saved filename using the file's original name and our upload directory
+	$savedFilename = $uploadDir . $filename;
 
-    // Move the file from the temp location to our uploads directory
-    move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
+	// Move the file from the temp location to our uploads directory
+	move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
 	$uploadedArray = readList($savedFilename);
-    $todo_list_obj->listArray = array_merge($uploadedArray, $todo_list_obj->listArray);
-    $todo_list_obj->saveFile($listArray);
+	$todo_list_obj->listArray = array_merge($uploadedArray, $todo_list_obj->listArray);
+	$todo_list_obj->saveFile($listArray);
 }
-
-
-
 
 
 ?>
@@ -97,8 +93,6 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 	<title>TODO List</title>
 	<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="css/main.css">
-	
-	
 </head>
 <body>
 
@@ -109,7 +103,6 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 
 <!-- form to enter a new todo item -->
 	<form method="POST" action="/todo_list.php">
-
 		<label for="item"></label>
 		<input class="input" type="item" id="item" name="item">
 		<button type="submit">Add</button>
@@ -117,17 +110,15 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 
 
 <!-- File upload code -->
-	<!-- <h1>Upload File</h1> -->
-
-    <form method="POST" enctype="multipart/form-data" action="/todo_list.php">
-        <p>
-            <label for="file1">File to upload: </label>
-            <input type="file" id="file1" name="file1">
-        </p>
-        <p>
-            <input type="submit" value="Upload">
-        </p>
-    </form>
+	<form method="POST" enctype="multipart/form-data" action="/todo_list.php">
+		<p>
+			<label for="file1">File to upload: </label>
+			<input type="file" id="file1" name="file1">
+		</p>
+		<p>
+			<input type="submit" value="Upload">
+		</p>
+	</form>
 
 <!-- List -->
 	<div class="list">
@@ -138,8 +129,7 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 		<li><?= $item; ?>	
 		<a href="?remove=<?= $key; ?>">X</a></div> 
 	<? endforeach; ?></li></ul></div>
-
-
+	
 
 </body>
 </html>
