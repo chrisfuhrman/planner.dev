@@ -2,36 +2,62 @@
 
 class Filestore {
 
-	public $filename = '';
+	public $filename, 
+	$contents = [];
+	protected $isCSV = false;
+
 
 	// Allows filename to be set on instantiation
 	function __construct($filename) {
+		
 		$this->filename = $filename;
+		// checks to see if the file is a CSV
+		if (substr($filename, -3) == 'csv') {
+			$this->isCSV = true;
+		}
+
+	} 
+
+	public function read() {
+
+		if ($this->isCSV) { 
+			return $this->readCSV();
+		} else {
+			return $this->readLines();
+		}
+	}
+
+	public function write () {
+		if ($this->isCSV) {
+			return $this->writeCSV();
+		} else {
+			return $this->writeLines();
+		}
 	}
 
 	//function to open a file, read it, and turn contents into an array
-	function readLines() {
+	protected function readLines() {
 
 		$handle = fopen($this->filename, 'r');
 
 		if (filesize($this->filename) > 0) {
-			$contents = fread($handle, filesize($this->filename));
-			$listArray = explode(PHP_EOL, trim($contents));
+			$content = fread($handle, filesize($this->filename));
+			$this->contents = explode(PHP_EOL, trim($content));
 		} else {
-			$listArray = [];
+			$this->contents = [];
 		}
 		
 		fclose($handle); 
 
-		return $listArray;
+		return $this->contents;
 	}
 
 	// Function to save todo list to a file
-	function writeLines($listArray) {
+	protected function writeLines() {
 
 		$handle = fopen($this->filename, 'w');
 
-		foreach ($listArray as $task) {
+		foreach ($this->contents as $task) {
 			fwrite($handle, $task . PHP_EOL);
 		}
 		
@@ -39,38 +65,32 @@ class Filestore {
 	}
 
 	// function for reading CSV
-	function readCSV() {
+	protected function readCSV() {
 
 		$handle = fopen($this->filename, 'r');
 
-		$address_book = [];
+		$this->contents = [];
 
 
 		while(!feof($handle)) {
 			$row = fgetcsv($handle);
 
 			if (!empty($row)) {
-				$address_book[] = $row;
+				$this->contents[] = $row;
 			}
 		}
 		fclose($handle);
-		return $address_book;
+		return $this->contents;
 	}
 
 	// php function to Save to CSV file
-	function writeCSV() {
+	protected function writeCSV() {
 		$handle = fopen($this->filename, 'w');
-		foreach ($this->address_book as $row) {
+		foreach ($this->contents as $row) {
 			fputcsv($handle, $row);	
 		}
 
 		fclose($handle);
 	}
-
-
-
-
-
-
 
 }

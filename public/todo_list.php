@@ -12,23 +12,23 @@ class ToDoListStore extends Filestore
 $todo_list_obj = new ToDoListStore('list.txt');
 
 //calling function to open file, read
-$todo_list_obj->listArray = $todo_list_obj->readLines();
+$todo_list_obj->contents = $todo_list_obj->read();
 
 // add item to array
 if (isset($_POST['item'])) {
-	$todo_list_obj->listArray[] = htmlspecialchars(strip_tags($_POST['item']));
+	$todo_list_obj->contents[] = htmlspecialchars(strip_tags($_POST['item']));
 }
 
 // Call function to save file
-$todo_list_obj->writeLines($todo_list_obj->listArray);
+$todo_list_obj->write($todo_list_obj->contents);
 
 if (isset($_GET['remove'])) {
 	$id = $_GET['remove'];
-	unset($todo_list_obj->listArray[$id]);
+	unset($todo_list_obj->contents[$id]);
 }
 
 // Call function to save file
-$todo_list_obj->writeLines($todo_list_obj->listArray);
+$todo_list_obj->write($todo_list_obj->contents);
 
 
 // Verify there were uploaded files and no errors
@@ -45,9 +45,9 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 	// Move the file from the temp location to our uploads directory
 	move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
-	$uploadedArray = readLines($savedFilename);
-	$todo_list_obj->listArray = array_merge($uploadedArray, $todo_list_obj->listArray);
-	$todo_list_obj->writeLines($listArray);
+	$uploadedArray = read($savedFilename);
+	$todo_list_obj->contents = array_merge($uploadedArray, $todo_list_obj->contents);
+	$todo_list_obj->write($contents);
 }
 
 
@@ -91,7 +91,7 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 	<div class="list">
 		<h2 id="list_title">Your List</h2>
 		<ul>
-		<? foreach ($todo_list_obj->listArray as $key => $item) : ?>
+		<? foreach ($todo_list_obj->contents as $key => $item) : ?>
 		<div class="li-list">
 		<li><?= $item; ?>	
 		<a href="?remove=<?= $key; ?>">X</a></div> 

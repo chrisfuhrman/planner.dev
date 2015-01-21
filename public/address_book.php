@@ -4,11 +4,15 @@ require_once '../inc/filestore.php';
 
 class AddressDataStore extends Filestore
 {
-	public $address_book = [];
+
+	function __construct($filename) {
+		parent::__construct(strtolower($filename));
+	}
+
 }
 
 	$address_obj = new AddressDataStore('address_book.csv');
-	$address_obj->address_book = $address_obj->readCSV();
+	$address_obj->contents = $address_obj->read();
 
 
 // Verify there were uploaded files and no errors
@@ -25,15 +29,15 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 
 	$address_obj_uploaded = new AddressDataStore($savedFilename);
 
-	$address_obj_uploaded->readCSV();
+	$address_obj_uploaded->read();
 
 	// Move the file from the temp location to our uploads directory
 	move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
 	
  
-	$address_obj->address_book = array_merge($address_obj->address_book, $address_obj_uploaded->readCSV());
-	$address_obj->writeCSV();
+	$address_obj->contents = array_merge($address_obj->contents, $address_obj_uploaded->read());
+	$address_obj->write();
 }
 
 
@@ -54,8 +58,8 @@ if (!empty($_POST)) {
 	if ($error) {
 		$message = 'Please fill out all the fields';
 	} else {
-		array_push($address_obj->address_book, $_POST);
-		$address_obj->writeCSV();	
+		array_push($address_obj->contents, $_POST);
+		$address_obj->write();	
 	}
 }
 
@@ -63,10 +67,10 @@ if (!empty($_POST)) {
 
 if (isset($_GET['remove'])) {
 	$id = $_GET['remove'];
-	unset($address_obj->address_book[$id]);
+	unset($address_obj->contents[$id]);
 }
 
-$address_obj->writeCSV();
+$address_obj->write();
 
 
 
@@ -152,7 +156,7 @@ $address_obj->writeCSV();
 					<!-- <th>Remove</th> -->
 				</tr>
 
-				<? foreach ($address_obj->address_book as $key => $row): ?>
+				<? foreach ($address_obj->contents as $key => $row): ?>
 					<tr>
 					<?foreach ($row as $value): ?>
 						<td colspan="1"> <?= $value ?></td>
@@ -233,7 +237,7 @@ $address_obj->writeCSV();
 			<div class="col-md-3">
 				<h2>Upload File</h2>
 
-				<form method="POST" enctype="multipart/form-data" action="/address_book.php">
+				<form method="POST" enctype="multipart/form-data" action="/contents.php">
 					<p>
 						<label for="file1">File to upload: </label>
 						<input type="file" id="file1" name="file1">
