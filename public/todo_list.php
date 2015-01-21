@@ -1,51 +1,18 @@
 <?php
 
-class TodoListStore {
+require_once '../inc/filestore.php';
 
-	public $filename = '';
+class ToDoListStore extends Filestore
 
-	public $listArray = '';
+{
 
-	// Allows filename to be set on instantiation
-	function __construct($filename = 'list.txt') {
-		$this->filename = $filename;
-	}
-
-	//function to open a file, read it, and turn contents into an array
-	function readList() {
-
-		$handle = fopen($this->filename, 'r');
-
-		if (filesize($this->filename) > 0) {
-			$contents = fread($handle, filesize($this->filename));
-			$listArray = explode(PHP_EOL, trim($contents));
-		} else {
-			$listArray = [];
-		}
-		
-		fclose($handle); 
-
-		return $listArray;
-	}
-
-	// Function to save todo list to a file
-	function saveFile($listArray) {
-
-		$handle = fopen($this->filename, 'w');
-
-		foreach ($listArray as $task) {
-			fwrite($handle, $task . PHP_EOL);
-		}
-		
-		fclose($handle);
-	}
 }
 
 // initialize class
-$todo_list_obj = new TodoListStore;
+$todo_list_obj = new ToDoListStore('list.txt');
 
 //calling function to open file, read
-$todo_list_obj->listArray = $todo_list_obj->readList();
+$todo_list_obj->listArray = $todo_list_obj->readLines();
 
 // add item to array
 if (isset($_POST['item'])) {
@@ -53,7 +20,7 @@ if (isset($_POST['item'])) {
 }
 
 // Call function to save file
-$todo_list_obj->saveFile($todo_list_obj->listArray);
+$todo_list_obj->writeLines($todo_list_obj->listArray);
 
 if (isset($_GET['remove'])) {
 	$id = $_GET['remove'];
@@ -61,7 +28,7 @@ if (isset($_GET['remove'])) {
 }
 
 // Call function to save file
-$todo_list_obj->saveFile($todo_list_obj->listArray);
+$todo_list_obj->writeLines($todo_list_obj->listArray);
 
 
 // Verify there were uploaded files and no errors
@@ -78,9 +45,9 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 	// Move the file from the temp location to our uploads directory
 	move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
-	$uploadedArray = readList($savedFilename);
+	$uploadedArray = readLines($savedFilename);
 	$todo_list_obj->listArray = array_merge($uploadedArray, $todo_list_obj->listArray);
-	$todo_list_obj->saveFile($listArray);
+	$todo_list_obj->writeLines($listArray);
 }
 
 

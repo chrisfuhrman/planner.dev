@@ -1,48 +1,14 @@
 <?php
 
-class AddressDataStore
+require_once '../inc/filestore.php';
+
+class AddressDataStore extends Filestore
 {
-	public $filename = '';
-
 	public $address_book = [];
-
-	// Allows filename to be set on instantiation
-	function __construct($filename = 'address_book.csv') {
-		$this->filename = $filename;
-	}
-
-	// function for reading CSV
-	function openCSV() {
-
-		$handle = fopen($this->filename, 'r');
-
-		$address_book = [];
-
-
-		while(!feof($handle)) {
-			$row = fgetcsv($handle);
-
-			if (!empty($row)) {
-				$address_book[] = $row;
-			}
-		}
-		fclose($handle);
-		return $address_book;
-	}
-
-	// php function to Save to CSV file
-	function saveAddressBook() {
-		$handle = fopen($this->filename, 'w');
-		foreach ($this->address_book as $row) {
-			fputcsv($handle, $row);	
-		}
-
-		fclose($handle);
-	}
 }
 
-	$address_obj = new AddressDataStore();
-	$address_obj->address_book = $address_obj->openCSV();
+	$address_obj = new AddressDataStore('address_book.csv');
+	$address_obj->address_book = $address_obj->readCSV();
 
 
 // Verify there were uploaded files and no errors
@@ -59,15 +25,15 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == UPLOAD_ERR_OK) {
 
 	$address_obj_uploaded = new AddressDataStore($savedFilename);
 
-	$address_obj_uploaded->openCSV();
+	$address_obj_uploaded->readCSV();
 
 	// Move the file from the temp location to our uploads directory
 	move_uploaded_file($_FILES['file1']['tmp_name'], $savedFilename);
 
 	
  
-	$address_obj->address_book = array_merge($address_obj->address_book, $address_obj_uploaded->openCSV());
-	$address_obj->saveAddressBook();
+	$address_obj->address_book = array_merge($address_obj->address_book, $address_obj_uploaded->readCSV());
+	$address_obj->writeCSV();
 }
 
 
@@ -89,7 +55,7 @@ if (!empty($_POST)) {
 		$message = 'Please fill out all the fields';
 	} else {
 		array_push($address_obj->address_book, $_POST);
-		$address_obj->saveAddressBook();	
+		$address_obj->writeCSV();	
 	}
 }
 
@@ -100,7 +66,7 @@ if (isset($_GET['remove'])) {
 	unset($address_obj->address_book[$id]);
 }
 
-$address_obj->saveAddressBook();
+$address_obj->writeCSV();
 
 
 
@@ -219,23 +185,6 @@ $address_obj->saveAddressBook();
 							<label for="name">Name:</label>
 							<input type="text" class="form-control" name="name" id="name">
 							</div>
-
-
-								<!-- Upload File form -->
-								<div class="col-md-3">
-									<h2>Upload File</h2>
-
-									<form method="POST" enctype="multipart/form-data" action="/address_book.php">
-										<p>
-											<label for="file1">File to upload: </label>
-											<input type="file" id="file1" name="file1">
-										</p>
-										<p>
-											<input type="submit" value="Upload">
-										</p>
-									</form>
-								</div>
-
 						</div>
 					</div>
 
