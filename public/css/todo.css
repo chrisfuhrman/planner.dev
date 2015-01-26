@@ -1,0 +1,185 @@
+#intro-content {
+	background-color: ;
+}
+
+
+h3 {
+	text-align: center;
+}
+
+#item-title {
+	margin: 0px;
+	margin-left: 50px;
+}
+/*
+  ========================================
+  Form
+  ========================================
+*/
+
+#add-block {
+	margin-left: -20px;
+}
+
+#upload-section {
+	background-color: #fff;
+	/*text-align: center;*/
+	/*width: 50%;*/
+	/*margin-left: 13%;*/
+}
+
+.form_title {
+	color: #48C3FF;
+	text-align: center;
+}
+
+.input-group-addon {
+	display: inline;
+	height: 50px;
+}
+
+/*.input {
+	height: 25px;
+	width: 150px;
+	display: inline-block;*/
+/*}*/
+#item-form {
+	text-align: center;
+	display: inline-block;
+}
+
+#upload-form {
+	background-color: gray;
+	width: 33%;
+	color: #fff;
+	margin-left: 10px;
+
+}
+#upload-form input {
+
+}
+#upload-btn {
+	background-color: blue;
+}
+h4 {
+	margin-left: 10px;
+}
+
+#add-btn {
+	margin: 5px;
+	background-color: green;
+	color: white;
+
+
+	margin: auto;
+	margin-top: 5px;
+	font-size: 120%;
+
+}
+button:hover {
+	background-color: #00B131;
+}
+
+/*
+  ========================================
+  The List
+  ========================================
+*/
+#task-title-div {
+	background-color: gray;
+
+
+}
+#list-section {
+	background-color: #fff;
+
+}
+
+#list-title {
+	color: #fff;
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+}
+
+.list {
+
+	font-size: 1.5em;
+
+}
+
+.list h3 {
+	color: #54BF6A;
+}
+a:link {
+	color: green;
+	text-decoration: none;
+	/*font-size: .7em;*/
+}
+#a-link {
+	margin-bottom: 50px;
+}
+
+#delete-btn-1 {
+	font-size: 0.6em;
+	background-color: red;
+	color: #fff;
+	border-radius: 5px;
+	/*position: relative;*/
+	padding: 5px;
+	margin-top: 50px;
+}
+ 
+* {
+	font-family: 'Droid Sans', sans-serif;
+}
+
+/*
+  ========================================
+  Misc.
+  ========================================
+*/
+
+.center-text {
+	text-align: center;
+}
+
+	th, table {
+		text-align: center;
+	}
+	th {
+		background-color: #3FBCFF;
+		color: #fff;
+	}
+
+	.my-btn {
+	background-color: #3FBCFF;
+	color: #fff;
+	border-radius: 10px;
+	padding-left: 15px;
+	padding-right: 15px;
+	}
+
+	.page-btn {
+		background-color: green;
+		color: #fff;
+	}
+
+	#footer {
+		margin-top: 40px;
+		background-color: gray;
+		color: #fff;
+
+	}
+	.center-text {
+		text-align: center;
+	}
+
+
+	#page-num-div {
+		margin-top: 15px;		 
+	}
+
+	.clear-fix {
+		clear: both;
+	}
