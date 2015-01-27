@@ -1,0 +1,46 @@
+<style>
+
+		body {
+			background-color: antiquewhite;
+		}
+		#headline {
+			color: rgba(73, 181, 113, 1);
+			font-size: 3em;
+			font-family: 'Oxygen', sans-serif;
+			text-align: center;
+		}
+		#delete-btn {
+			background-color: none;
+			text-align: center;
+			border: none;
+			font-weight: bold;
+			font-size: 1.2em;
+		}
+		#delete-btn a {
+			color: red;
+		}
+		table, tr, th, td {
+			border: 2px solid black;
+		}
+		th {
+			text-align: center;
+			font-weight: bold;
+			color: white;
+			background-color: rgba(66, 142, 255, 1);
+		}
+		td {
+			text-align: left;
+
+		}
+		table {
+			width: 80%;
+			margin: 25px auto 25px;
+		}
+
+		#footer {
+			background-color: gray;
+			text-align: center;
+			color: #fff;
+		}
+
+	</style>
