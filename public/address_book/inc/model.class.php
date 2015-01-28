@@ -1,11 +1,14 @@
 <?php
 
+
+require_once 'config.php';
+
 Class Model 
 
 {
 	
-	public $dbc;
-	public $attributes = [];
+	protected $dbc;
+	protected $attributes = [];
 	
 
 	public function __construct($dbc) 
@@ -15,7 +18,7 @@ Class Model
 
 	public function save()
 	{
-		if (isset($this->attributes['id'])) {
+		if(isset($this->attributes['id'])) {
 			return $this->update();
 		} else {
 			return $this->insert();
@@ -30,7 +33,5 @@ Class Model
 		return strip_tags($this->attributes[$name]);
 	}
 
-	// abstract protected function insert();
-	// abstract protected function update();
-
 }
+

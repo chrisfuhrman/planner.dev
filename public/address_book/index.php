@@ -1,128 +1,102 @@
 <?php
 
 require_once 'inc/config.php';
+require_once 'inc/person.class.php';
+require_once 'inc/address.class.php';
 
-// if (isset($_POST)) {
-
-// 	switch ($_POST['action']) {
-// 		case 'add person':
-// 			$person->insert();
-// 			break;
-// 		case 'delete address';
-// 			$address->delete();
-// 			break;
-// 		case $_POST['delete person']:
-// 			$person->delete();
-// 			break;
-// 	} 
-// }
+// instantiate new Person object
+$personObj = new Person($dbc);
+// instantiate new Address object
+$addressObj = new Address($dbc);
 
 
-// Determines the number of addresses in db
-$countStmt = $dbc->query('SELECT count(*) FROM addresses');
-$taskNum = $countStmt->fetchColumn();
-// Amount of addresses to display per page
-$limNum = 10;
+// CHECK IF AN ACTION WAS POSTED
+if (isset($_POST['action'])) {
 
-// Determine page count
-$pageCount = ceil($taskNum / $limNum);
-// /
+	switch ($_POST['action']) {
+		case 'add_person':
+			// set person name from POST
+			try{
+				if(isset($_POST['first_name']) && isset($_POST['last_name'])){
+					$personObj->first_name = $_POST['first_name'];
+					$personObj->last_name = $_POST['last_name'];
+					
+					$personObj->insert();
+					break;
+				}else{ 
+					throw new Exception('One or more fields are empty');
+				}
+			} catch(Exception $e){
+				$Message = $e->getMessage();
+			}
+			// method to save to db
+		case 'delete_person':
+			// set person id from POST
+			try{
+				if(isset($_POST['person_id'])){
+					$personObj->id = $_POST['person_id'];
 
-// Set page #'s & offset # - WE MIGHT NOT NEED THIS, DEPENDING ON THE LAYOUT
+					$personObj->delete();
+					break;
+				}else{ 
+					throw new Exception('One or more fields are empty');
+				}
+			} catch(Exception $e){
+				$Message = $e->getMessage();
+			}
+		case 'delete_address';
+			// set address id from POST
+			try{
+				if(isset($_POST['address_id'])){
+					$addressObj->id = $_POST['address_id'];
+
+					$addressObj->delete();
+					break;
+				}else{ 
+					throw new Exception('One or more fields are empty');
+				}
+			} catch(Exception $e){
+				$Message = $e->getMessage();
+			}
+	} 
+}
+// END ACTION POST CHECK
+
+
+
+// BEGIN PAGINATION
 if (!isset($_GET['page'])) {
-	$offsetNum = 0;
-	$page = 1; 
-
+	$page = 1;
+	$offNum = 0;
 } else {
 	$page = $_GET['page'];
-	$offsetNum = ($page != 1) ? ($page - 1) * $limNum: 0;
+	$offNum = ($page - 1) * 10;
 }
 
-// BEGIN BLOCK OF CODE that IS NOT UPDATED!!!!
-	// This should verify that all required fields are filled in 
-	// and then save to db if entered correctly
+$limNum = 10;
 
-// If post is filled out
-if (!empty($_POST)) {
+$count = $dbc->query('SELECT count(*) FROM people')->fetchColumn();
 
-	$error = false;
+$totalPages = ceil($count / 10);
 
-	foreach ($_POST as $key => $value) {
-		$_POST[$key] = strip_tags($value);
-
-		// verify all fields were filled out
-		if (empty($value)) {
-			$error = true;
-		}
-	}
-
-	try {
-		if (!$error) {
-
-			// add item to array & store to db
-			$insertData = $dbc->prepare('INSERT INTO todo_list (task, due_date, category, priority) 
-				VALUES (:task, :due_date, :category, :priority)
-				');
-
-		    $insertData->bindValue(':task', $_POST['task'], PDO::PARAM_STR);
-		    $insertData->bindValue(':due_date', $_POST['due_date'], PDO::PARAM_STR);
-		    $insertData->bindValue(':category', $_POST['category'], PDO::PARAM_STR);
-		    $insertData->bindValue(':priority', $_POST['priority'], PDO::PARAM_INT);
-
-		    $insertData->execute();
-
-		} else {
-			throw new UnexpectedTypeException('Noob, please fill out all the fields!');
-		} 
-	} catch (UnexpectedTypeException $e) {
-		 $message = $e->getMessage();
-	}
-}
-// END BLOCK OF CODE 
+$next = $page + 1;
+$previous = $page - 1;
+// End of PAGINATION
 
 
-
-// QUERY FOR ADDRESS
-$addressStmt = $dbc->prepare(
-	'SELECT * FROM addresses
-	 LIMIT :limNum OFFSET :offsetNum'
-);
-
-$addressStmt->bindValue(':limNum', $limNum, PDO::PARAM_INT);
-$addressStmt->bindValue(':offsetNum', $offsetNum, PDO::PARAM_INT);
-$addressStmt->execute();
-// END QUERY FOR ADDRESS
-
-
-
-// QUERY FOR PERSON
-$personStmt = $dbc->prepare(
-	'SELECT * FROM people
-	 LIMIT :limNum OFFSET :offsetNum'
-);
-
-$personStmt->bindValue(':limNum', $limNum, PDO::PARAM_INT);
-$personStmt->bindValue(':offsetNum', $offsetNum, PDO::PARAM_INT);
-$personStmt->execute();
-// END QUERY FOR PERSON
-
-
-// CODE BLOCK: join Address & People Tables
-$joinedQuery = 'SELECT first_name, last_name, address, city, state, zip
+// CODE BLOCK: JOIN Address & People Tables
+$joinedQuery = 'SELECT a.id AS address_id, p.id AS user_id, person_id, first_name, last_name, address, city, state, zip
 	FROM addresses AS a
-	LEFT JOIN people AS p
-	ON p.id = a.person_id';
+	RIGHT JOIN people AS p
+	ON p.id = a.person_id;';
 
 $joinedStmt = $dbc->query($joinedQuery);
 
 
-
 ?>
 
-<!-- header -->
+<!-- HEADER -->
 <? require_once 'inc/header.php'; ?>
-
-
 
 	<!-- Error Message Display Div & Logic -->
 	<? if (isset($message)): ?>
@@ -131,61 +105,118 @@ $joinedStmt = $dbc->query($joinedQuery);
 
 	<div class="container">
 		<!-- Display table -->
-		<h1 id="headline">Address Book</h1>
-		<table>
-			<tr>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Address</th>
-				<th>City</th>
-				<th>State</th>
-				<th>Zip Code</th>
-				<th>Remove</th>
-			</tr>
+		<h1 class="addressHeader">Address Book</h1>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<table class="table table-bordered" class="outer-table">
+					<th>Person</th>
+					<th>Address</th>
+						<? while ($row = $joinedStmt->fetch(PDO::FETCH_ASSOC)) : ?>
+				
+							<tr>
+								<td>
+									<span class="name-bold"><?= $row['first_name'] . ' ' . $row['last_name'] ?></span>
+									<a class="btn btn-sm btn-primary" href="edit_person.php?id=<?= $row['user_id'] ?>">Edit</a>&nbsp;
+									<button type="button" class="btn btn-danger btn-sm dlt-btn-person" data-person-id="<?=$row['user_id']?>">Delete</button>
+									<a class="btn btn-success btn-sm" href="add_address.php?id=<?= $row['user_id']?>">New Address</a>
+								</td>
 
-			<? while ($row = $joinedStmt->fetch(PDO::FETCH_ASSOC)) : ?>
-				<tr>
-					<td> <?= $row['first_name']; ?> </td>
-					<td> <?= $row['last_name']; ?> </td>
-					<td> <?= $row['address']; ?> </td>
-					<td> <?= $row['city']; ?> </td>
-					<td> <?= $row['state']; ?> </td>
-					<td> <?= $row['zip']; ?> </td>
-					<!-- <td><a id="a-link" href="?remove=<?= $row['id'] ?>"><span id="delete-btn-1">Delete</span></a></td> -->
-				</tr>
-			<? endwhile; ?>
-		</table>
+								<td>
 
+									<table class="inner-table">
+							
+										<tr>
+											<td>
+												<span class="newLine"><?=  " " . $row['address']; ?></span>
+												<span class="newLine"><?= " " . $row['city'] . " " . $row['state']; ?></span>
+												<span class="newLine"><?= " " .  $row['zip']; ?></span>
+											</td>
+											
+											<div class="right-justify">
+												<a class="btn btn-primary btn-2 btn-sm" href="edit_address.php?id=<?=$row['address_id']?>">Edit</a>&nbsp;
+												<button type="button" class="btn btn-danger btn-2 btn-sm dlt-btn-address" data-address-id="<?=$row['address_id']?>">Delete</button>
+											</div>
+											
+										</tr>
+									</table>
+
+									
+								</td>
+							</tr>
+						<? endwhile ?>
+				</table>
+		</div>
 	</div>
 
-<!-- form to enter a new person -->
+<!-- BEGIN NEW PERSON FORM -->
 	<div class="container">
-		<form class="form-inline" id="item-form" method="POST" action="test.php">
-		<h1>Add a person</h1>
-		<? require_once 'templates/person.form.php'; ?>
-		</form>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<form class="form-group" id="item-form" method="POST" action="index.php">
+					<h2 class="addPersonHeader">Add a person</h2>
+					<? require_once 'templates/person.form.php'; ?>
+				</form>
+			</div>
+		</div>
 	</div>
+<!-- END NEW PERSON FORM -->
 
-	
-<!-- 
-	two hidden form for deleteing address or deleting person
-	name = 'action'
-	use javascript to tie id to the forms.
+<!-- include hidden forms -->
+	<? require_once 'inc/hidden_forms.php' ?>
 
-	for buttons, use data-person-id -->
+<!-- BEGIN PAGINATION 2ND BLOCK -->
+	<nav>
+		<ul class="pagination">
+			<li>
+				<? if($page > 1): ?>
+					<a href="?page=<?=$previous?>" aria-label="Previous">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				<? endif; ?>
+			</li>
+
+			<? if(($totalPages > 3) && ($page > 2)):?>
+				<li>
+					<a href="?page=<?=$previous-1?>"> <?=$previous-1?></a>
+				</li>
+			<? endif; ?>
+
+			<? if($page > 1):?>
+				<li>
+					<a href="?page=<?=$previous?>"> <?=$previous?> </a>
+				</li>
+			<? endif; ?>
+				<li class= "active">
+					<a href="?page=<?=$page?>"> <?=$page?></a>
+				</li>
+			<? if($totalPages != $page): ?>
+				<li>
+					<a href="?page=<?=$next?>"> <?=$next?> </a>
+				</li>
+			<? endif; ?>
+			<? if(($totalPages > 3) && ($totalPages >= $next+1)): ?>
+				<li>
+					<a href="?page=<?=$next+1?>"> <?=$next+1?></a>
+				</li>
+			<? endif; ?>
+			<li>
+			<? if($page <= ($totalPages - 1)): ?>	
+				<a href="?page=<?=$next?>" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			<? endif; ?>
+			</li>
+		</ul>
+	</nav>
+<!-- End of Pagination -->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<!-- custom script  -->
+	<script src="inc/script.js"></script>	
 
 
-		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-
-		<script>
-			
-		 
-
-		</script>
-
-	</body>
+</body>
 </html>

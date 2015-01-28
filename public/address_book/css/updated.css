@@ -1,0 +1,91 @@
+.name-bold {
+
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 25px;
+	display: block;
+
+}
+
+.address-text {
+
+}
+
+body {
+
+	background-image: url(../img/background.png);
+}
+
+table, td-body, td, tr, th th-body {
+
+	background-color: white;
+
+
+}
+
+.btn-primary, .btn-danger, .btn-success {
+
+	float: left;
+	overflow: hidden;
+	display: block;
+	margin-right: 3px;
+
+}
+
+.btn-2 {
+
+	float: left;
+	overflow: hidden;
+	margin-right: 3px;
+
+}
+
+th {
+
+	font-size: 20px;
+}
+
+.addressHeader {
+
+	text-align: center;
+	color: white;
+	padding-bottom: 20px;
+	padding-top: 5px;
+}
+
+.form-inline {
+
+	padding-bottom: 45px;
+}
+
+.addPersonHeader {
+
+	color: white;
+	padding-top: 5px;
+	text-align: center;
+}
+
+.right-justify {
+	width: 125px;
+	float: right;
+}
+
+.newLine {
+	display: block;
+}
+
+.editHeader {
+
+	text-align: center;
+	color: white;
+}
+
+.labelType {
+
+	color: white;
+}
+
+.btn-default {
+
+	margin-top: 15px;
+}

@@ -1,6 +1,9 @@
+
 <div class="form-group">
 	<label class="sr-only" for="first_name">First Name</label>
 	<input name="first_name" type="text" class="form-control"  id="first_name" placeholder="first name">
+	<input name="action" type="hidden" class="form-control"  id="add_person" value="add_person">
+
 </div>
 
 <div class="form-group">
