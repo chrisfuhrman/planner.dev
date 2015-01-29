@@ -7,14 +7,15 @@ Class Address extends Model
 
 	public function insert()
 	{
-		$insertData = $this->dbc->prepare('INSERT INTO addresses (address, city, state, zip, person_id) 
-			                               VALUES (:address, :city, :state, :zip, :person_id)');
+		$insertData = $this->dbc->prepare('INSERT INTO addresses (address, city, state, zip, person_id, phone) 
+			                               VALUES (:address, :city, :state, :zip, :person_id, :phone)');
 
 	    $insertData->bindValue(':address',   $this->attributes['address'],   PDO::PARAM_STR);
 	    $insertData->bindValue(':city',      $this->attributes['city'],      PDO::PARAM_STR);
 	    $insertData->bindValue(':state',     $this->attributes['state'],     PDO::PARAM_STR);
 	    $insertData->bindValue(':zip',       $this->attributes['zip'],       PDO::PARAM_STR);
 	    $insertData->bindValue(':person_id', $this->attributes['person_id'], PDO::PARAM_STR);
+	    $insertData->bindValue(':phone', $this->attributes['phone'], PDO::PARAM_STR);
 
 	    $insertData->execute();
 		
@@ -23,7 +24,7 @@ Class Address extends Model
 	public function update()
 	{
 		$updateStmt = $this->dbc->prepare('UPDATE addresses 
-										   SET address = :address, city = :city, state = :state, zip = :zip 
+										   SET address = :address, city = :city, state = :state, zip = :zip, phone = :phone
 										   WHERE id = :id');
 
 		$updateStmt->bindValue(':id',      $this->attributes['id'],      PDO::PARAM_INT);
@@ -31,6 +32,8 @@ Class Address extends Model
 		$updateStmt->bindValue(':city',    $this->attributes['city'],    PDO::PARAM_STR);
 		$updateStmt->bindValue(':state',   $this->attributes['state'],   PDO::PARAM_STR);
 		$updateStmt->bindValue(':zip',     $this->attributes['zip'],     PDO::PARAM_STR);
+		$updateStmt->bindValue(':phone',     $this->attributes['phone'],     PDO::PARAM_STR);
+
 
 		$updateStmt->execute();
 	}
@@ -61,5 +64,16 @@ Class Address extends Model
 		$this->attributes = $query->fetch(PDO::FETCH_ASSOC);
 
 	}
+
+	public function checkInput($input) {
+		$error2 = false;
+		foreach ($input as $key => $value) {
+			if(strlen($value)>= 30){
+				$error2 = true;
+			}
+		}
+		return $error2;
+	}
+
 
 }

@@ -17,17 +17,24 @@ if (isset($_POST['action'])) {
 		case 'add_person':
 			// set person name from POST
 			try{
-				if(isset($_POST['first_name']) && isset($_POST['last_name'])){
-					$personObj->first_name = $_POST['first_name'];
-					$personObj->last_name = $_POST['last_name'];
-					
-					$personObj->insert();
-					break;
+				if(!empty($_POST['first_name']) && !empty($_POST['last_name'])){
+				
+						if(strlen($_POST['first_name'] <= 20) && strlen($_POST['first_name']) <= 30) {
+
+							$personObj->first_name = $_POST['first_name'];
+							$personObj->last_name = $_POST['last_name'];
+
+							$personObj->insert();
+							break;
+						}else{
+							throw new Exception('Name contains more than 50 combined characters');
+						}
+
 				}else{ 
 					throw new Exception('One or more fields are empty');
 				}
 			} catch(Exception $e){
-				$Message = $e->getMessage();
+				$message = $e->getMessage();
 			}
 			// method to save to db
 		case 'delete_person':
@@ -70,14 +77,17 @@ if (!isset($_GET['page'])) {
 	$offNum = 0;
 } else {
 	$page = $_GET['page'];
-	$offNum = ($page - 1) * 10;
+	$offNum = ($page - 1) * 5;
 }
 
-$limNum = 10;
+$limNum = 5;
 
-$count = $dbc->query('SELECT count(*) FROM people')->fetchColumn();
+$count = $dbc->query('SELECT count(*)
+	FROM addresses AS a
+	RIGHT JOIN people AS p
+	ON p.id = a.person_id;')->fetchColumn();
 
-$totalPages = ceil($count / 10);
+$totalPages = ceil($count / 5);
 
 $next = $page + 1;
 $previous = $page - 1;
@@ -85,13 +95,17 @@ $previous = $page - 1;
 
 
 // CODE BLOCK: JOIN Address & People Tables
-$joinedQuery = 'SELECT a.id AS address_id, p.id AS user_id, person_id, first_name, last_name, address, city, state, zip
+$joinedQuery = 'SELECT a.id AS address_id, p.id AS user_id, person_id, first_name, last_name, address, city, state, zip, phone
 	FROM addresses AS a
 	RIGHT JOIN people AS p
-	ON p.id = a.person_id;';
+	ON p.id = a.person_id
+	LIMIT :limNum
+	OFFSET :offNum';
+	$joinedStmt = $dbc->prepare($joinedQuery);
 
-$joinedStmt = $dbc->query($joinedQuery);
-
+	$joinedStmt->bindValue(':limNum', $limNum, PDO::PARAM_INT);
+	$joinedStmt->bindValue(':offNum', $offNum, PDO::PARAM_INT);
+	$joinedStmt->execute();
 
 ?>
 
@@ -130,6 +144,7 @@ $joinedStmt = $dbc->query($joinedQuery);
 												<span class="newLine"><?=  " " . $row['address']; ?></span>
 												<span class="newLine"><?= " " . $row['city'] . " " . $row['state']; ?></span>
 												<span class="newLine"><?= " " .  $row['zip']; ?></span>
+												<span class="newLine"><?= " " . $row['phone']; ?></span>
 											</td>
 											
 											<div class="right-justify">

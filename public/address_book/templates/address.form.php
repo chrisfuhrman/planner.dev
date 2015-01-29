@@ -1,6 +1,6 @@
 <!-- form to enter a new address -->
 	<div class="container">
-		<form class="form-inline" id="item-form" method="POST" action="/db_todo_list.php">
+		<form class="form-inline" id="item-form" method="POST" action="/edit_address.php">
 		<h1>Add a new address</h1>
 			<div class="form-group">
 				<label class="sr-only" for="address">Address</label>
@@ -20,6 +20,11 @@
   			<div class="form-group">
 				<label class="sr-only" for="zip">Zip Code</label>
 				<input type="text" class="form-control"  id="zip" placeholder="zip" name="zip"></label>
+			</div>
+
+			<div class="form-group">
+				<label class="sr-only" for="phone">Phone Number</label>
+				<input type="text" class="form-control"  id="phone" placeholder="123-456-7890" name="phone"></label>
 			</div>
 
 			<button id="add-btn" type="submit" class="btn btn-default">Add</button>

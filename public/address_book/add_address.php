@@ -4,15 +4,10 @@ require_once 'inc/config.php';
 require_once 'inc/address.class.php';
 require_once 'inc/person.class.php';
 
-$addressObj = new Address($dbc);
 $personObj = new Person($dbc);
-
-// var_dump($personObj->id);
-
-// $personObj->first_name = $_POST[''];
+$addressObj = new Address($dbc);
 
 
-// Redirect if nothing is passed to the form.
 if (empty($_GET['id']) && empty($_POST)) {
 
 	header('Location: index.php');
@@ -27,22 +22,22 @@ if (!empty($_GET)) {
 	$personObj->load($personId);
 
 }
+$error = false;
 
 // If form was submitted, insert into db.
 if (!empty($_POST)) {
 
+	$personId = $_POST['person_id'];
+	$personObj->load($personId);
+	$errorStatus = $addressObj->checkInput($_POST);
 
-	var_dump($_POST);
-
-
-	$error = false;
 
 	foreach ($_POST as $key => $value) {
 
 		$_POST[$key] = strip_tags($value);
 
 		// verify all fields were filled out
-		if (empty($value)) {
+		if (empty($value) && $key != 'phone') {
 
 			$error = true;
 		}
@@ -51,25 +46,35 @@ if (!empty($_POST)) {
 	try {
 		if (!$error) {
 
-			// $addressObj->id = $_GET['id'];
+			if (!$errorStatus){
 
-			// $addressObj->person_id = $POST['id'];
-			$addressObj->address = $_POST['address'];
-			$addressObj->city = $_POST['city'];
-			$addressObj->state = $_POST['state'];
-			$addressObj->zip = $_POST['zip'];
-			$addressObj->person_id = $_POST['person_id'];
+				$addressObj->address = $_POST['address'];
+				$addressObj->city = $_POST['city'];
+				$addressObj->state = $_POST['state'];
+				$addressObj->zip = $_POST['zip'];
+				$addressObj->person_id = $_POST['person_id'];
+				$phone = $_POST['phone'];
+				if(strlen($phone) == 10){
+					$cleanPhone = preg_replace("/(\d{3})(\d{3})(\d{4})/", "$1-$2-$3", $phone);
+					$addressObj->phone = $cleanPhone;
+				}
 
-			// function to save to db
+
+				// function to save to db
 			$addressObj->insert();
 
 			$message = "Address successfully added!";
 
 			header('Location: index.php');
+			}else{
+				throw new Exception("Your Address is too long");
+				header('Location: add_address.php?id=' . $personId);
+			}
 
-	} else {
-		throw new Exception('Please fill out all fields');
-	}
+		} else {
+			throw new Exception('Please fill out all fields');
+			header('Location: add_address.php?id=' . $personId);
+		}
 
 	} catch (Exception $e) {
 		$message = $e->getMessage();
@@ -85,18 +90,16 @@ if (!empty($_POST)) {
 	<? if (isset($message)): ?>
 		<div class="alert alert-danger"><?= $message ?></div>
 	<? endif ?>
-
 	<h2 class="editHeader">New Address for <?= $personObj->first_name . " " . $personObj->last_name ?></h2>
 	<div class="container">
 		<div class="row">
 			<div class="col-md-4 col-md-offset-4">
 				<form class="form-group" action="add_address.php" method="post">
 					<input type="hidden" name="person_id" value="<?= $personObj->id ?>">
-	
 						<label class="labelType">Address:</label>
-						<input class="form-control" type="text" name="address"></input>
+						<input class="form-control" type="text" name="address" placeholder="Address: 123 Somewhere St"></input>
 						<label class="labelType">City:</label>
-						<input class="form-control" type="text" name="city"></input>
+						<input class="form-control" type="text" name="city" placeholder="City: Some City"></input>
 						<label class="labelType">State:</label>
 							<select class="form-control" name="state"></input>
 								<option value="">Select a State</option>
@@ -106,8 +109,11 @@ if (!empty($_POST)) {
 							</select>
 							
 						<label class="labelType">Zip:</label>
-						<input class="form-control" type="text" name="zip"></input>
+						<input class="form-control" type="text" name="zip" placeholder="Zip: 12345"></input>
+						<label class="labelType">Phone Number:</label>
+						<input class="form-control" type="text" name="phone" placeholder="Phone: 1234567890"></input>
 					<input class="btn btn-default" type="submit">
+					<a class="btn btn-default" href="index.php">Back</a>
 				</form>
 			</div>
 		</div>

@@ -84,6 +84,7 @@ $personObj->load($id);
 						<label class="labelType">Last Name:</label>
 						<input class="form-control" type="text" name="last_name" value="<?= $personObj->last_name ?>"></input>
 						<input class="btn btn-default" type="submit"></input>
+						<a class="btn btn-default" href="index.php">Back</a>
 				</form>
 			</div>
 		</div>
